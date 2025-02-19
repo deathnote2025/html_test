@@ -3,44 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coze Chat</title>
+    <title>表白页面</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            text-align: center;
             margin: 0;
-            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #fce4ec;
         }
-        #chat-container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #1e1e1e;
-            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .anime-girl {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .question {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #e91e63;
+            text-align: center;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #yesBtn {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        #noBtn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .result {
+            display: none;
+            text-align: center;
+        }
+
+        .result-text {
+            font-size: 28px;
+            color: #e91e63;
+            margin-bottom: 20px;
+            animation: fadeIn 1s;
+        }
+
+        .result-image {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            animation: heartBeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.1); }
+            70% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <h1>欢迎使用 Coze Chat</h1>
-    <div id="chat-container"></div>
+    <div class="container">
+        <img src="https://ts1.cn.mm.bing.net/th/id/R-C.3888621d9475aa73402b003cf0fb2073?rik=EHqDnysMicDUDw&riu=http%3a%2f%2f5b0988e595225.cdn.sohucs.com%2fimages%2f20190822%2f33f195d6518943cba3abd58bf9ec2cef.jpeg&ehk=yN0Z4xeH62BXAWgtSXh%2fyGCbnBCQcij0Azl%2fiuyBJgU%3d&risl=&pid=ImgRaw&r=0" alt="可爱猫咪" class="anime-girl">
+        <div class="question">你可以做我女朋友么？</div>
+        <div class="buttons">
+            <button id="yesBtn">可以</button>
+            <button id="noBtn">不可以</button>
+        </div>
+        <div class="result">
+            <div class="result-text">恭喜，我们恋爱啦！❤️</div>
+            <img src="https://ts1.cn.mm.bing.net/th/id/R-C.cb0871490425c5b6cb116903f5fd953d?rik=TbBIlUF1d4lJUw&riu=http%3a%2f%2f5b0988e595225.cdn.sohucs.com%2fimages%2f20190722%2ffa4f4e4fa5204b4394d63dc90d127ccd.jpeg&ehk=CH0D43CtIM4qySzdXrfzak3p7c0SiWb0KCqV%2fAij4NM%3d&risl=&pid=ImgRaw&r=0" alt="可爱猫咪" class="result-image">
+        </div>
+    </div>
 
-    <!-- Coze WebChatClient 安装代码 -->
-    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.1.0-beta.3/libs/cn/index.js"></script>
     <script>
-        new CozeWebSDK.WebChatClient({
-            config: {
-                bot_id: '7467901796686708771',
-                auth: {
-                    type: 'token',
-                    token: 'Bearer pat_TgcyCrrsRx1aMJvhp1LezcJPre8hWN8eC6oINw6WuaXTEPulORkLLiPU7e8bWCWm' // 确保替换为实际 Token
-                }
-            },
-            componentProps: {
-                title: 'Coze',
-            },
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const result = document.querySelector('.result');
+        const messages = ['认真的么？', '真的么？', '不考虑一下么？', '再想想？', '确定么？', '最后一次机会！'];
+        let currentSize = 16;
+        let messageIndex = 0;
+        let clickCount = 0;
+        const maxClicks = 15;
+
+        yesBtn.addEventListener('click', () => {
+            result.style.display = 'block';
+            document.querySelector('.buttons').style.display = 'none';
+            document.querySelector('.question').style.display = 'none';
+            document.querySelector('.anime-girl').style.display = 'none';
+        });
+
+        noBtn.addEventListener('click', () => {
+            clickCount++;
+            
+            if (clickCount >= maxClicks) {
+                noBtn.style.display = 'none';
+                return;
+            }
+
+            if (messageIndex < messages.length) {
+                noBtn.textContent = messages[messageIndex];
+                messageIndex++;
+            }
+            
+            currentSize = Math.max(currentSize - 1, 4);
+            noBtn.style.fontSize = currentSize + 'px';
+            noBtn.style.padding = (currentSize / 2) + 'px';
+            
+            const yesCurrentSize = parseInt(yesBtn.style.fontSize) || 16;
+            yesBtn.style.fontSize = (yesCurrentSize + 8) + 'px';
+            yesBtn.style.padding = (yesCurrentSize / 2 + 4) + 'px';
         });
     </script>
 </body>
